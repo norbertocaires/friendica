@@ -212,7 +212,7 @@
 <textarea rows="10" cols="72" id="dislikes-jot-text" name="dislikes" >{{$dislikes.2}}</textarea>
 
 </div>
-<div id="dislikes-jot-end"></div>
+<div id="dislikes-jot-end"></div>z
 
 
 <div id="contact-jot-wrapper" >

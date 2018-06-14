@@ -1,6 +1,6 @@
 
 
-<div id="profile-jot-wrapper" >
+<div id="profile-jot-wrapper" >aaaaaa
 	<div id="profile-jot-banner-wrapper">
 		<div id="profile-jot-desc" >&nbsp;</div>
 		<div id="character-counter" class="grey" style="display: none;">0</div>

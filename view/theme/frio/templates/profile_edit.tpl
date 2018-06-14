@@ -40,7 +40,7 @@
 
 		<div id="profile-photo-upload-section" class="panel">
 			<a id="profile-photo-upload-close" class="close pull-right" onclick="openClose('profile-photo-upload-section');"><i class="fa fa-times" aria-hidden="true"></i></a>
-			<div id="profile-photo-upload-wrapper">
+			<div id="profile-photo-upload-wrapper">aaaaaa
 				<label id="profile-photo-upload-label" for="profile-photo-upload">{{$lbl_profile_photo}}:</label>
 				<input name="userfile" type="file" id="profile-photo-upload" size="48" />
 			</div>

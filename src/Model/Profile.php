@@ -910,6 +910,14 @@ class Profile
 				'id'    => 'video-tab',
 				'accesskey' => 'v',
 			],
+                    	[
+				'label' => L10n::t('Competencie'),
+				'url'   => System::baseUrl() . '/competencie/' . $nickname,
+				'sel'   => !$tab && $a->argv[0] == 'competencie' ? 'active' : '',
+				'title' => L10n::t('Competencie'),
+				'id'    => 'competencie-tab',
+				'accesskey' => 'v',
+			],
 		];
 
 		// the calendar link for the full featured events calendar
@@ -945,7 +953,6 @@ class Profile
 				'accesskey' => 't',
 			];
 		}
-
 		if (!$is_owner && empty($a->profile['hide-friends'])) {
 			$tabs[] = [
 				'label' => L10n::t('Contacts'),

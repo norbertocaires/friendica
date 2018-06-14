@@ -39,3 +39,4 @@ Join today and [get your Friendica profile!](https://dir.friendica.social/server
 |*Vier theme, desktop browser. Public timeline view.*|
 |![Vier theme in desktop browser](/images/screenshots/friendica-vier-community.png?raw=true "Vier theme in desktop browser")
 |*Vier theme, desktop browser. Community post displayed.*|
+# friendica
