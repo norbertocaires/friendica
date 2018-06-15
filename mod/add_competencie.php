@@ -21,7 +21,7 @@ use Friendica\Util\DateTimeFormat;
 require_once 'include/items.php';
 require_once 'include/security.php';
 
-function competencie_init(App $a) {
+function add_competencie_init(App $a) {
 
 	if($a->argc > 1)
 		DFRN::autoRedir($a, $a->argv[1]);
@@ -81,8 +81,18 @@ function competencie_init(App $a) {
 	return;
 }
 
+function add_competencie_post(App $a) {
 
-function competencie_content(App $a) {
+	if (! local_user()) {
+		notice(L10n::t('Permission denied.') . EOL);
+		return;
+	}
+        
+	info(L10n::t('Profile updated.') . EOL);
+}
+
+
+function add_competencie_content(App $a) {
 
 	if((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) {
 		notice(L10n::t('Public access denied.') . EOL);
@@ -97,37 +107,30 @@ function competencie_content(App $a) {
 		return;
 	}
 
-        $competencies = [];
-	for ($count = 1; $count < 5; $count++) {
-		$competencies[] = [
-			'id'          => $count,
-			'title'       => 'Title ' . $count,
-			'description' => 'Description ' . $count,
-                        'edit'        => 'update_competencie/' . $a->data['user']['nickname'],
+        $competencies = '';
+
+		$competencies = [
+			'id'          => 0,
+			'title'       => '',
+			'description' => '',
 			'album' => [
 				'link'  => System::baseUrl() . '/videos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($rr['album']),
 				'name'  => $name_e,
 				'alt'   => L10n::t('View Album'),
 			],
 		];
-	}
         
 
 	$o = "";
 
-	// tabs
-	$_is_owner = (local_user() && (local_user() == $owner_uid));
-	$o .= Profile::getTabs($a, $_is_owner, $a->data['user']['nickname']);
         
-        $tpl = get_markup_template('competencies.tpl');
+        $tpl = get_markup_template('competencie_fields.tpl');
 	$o .= replace_macros($tpl, [
-		'$title'       => L10n::t('Competencias'),
-		'$edit'        => 'Editar competencia',
-                '$del'         => 'Deletar',
-                '$delLink'     => System::baseUrl().'/competencie/'. $a->data['user']['nickname'],
-                '$add'         => 'Adicionar competencia',
-                '$addLink'     => System::baseUrl().'/add_competencie/'. $a->data['user']['nickname'],
-		'$upload'      => [L10n::t('Upload New Videos'), System::baseUrl().'/videos/'.$a->data['user']['nickname'].'/upload'],
+		'$title'       => L10n::t('Adicionar competencia'),
+		'$save'        => 'Salvar',
+                '$saveLink'    => System::baseUrl(). '/competencie/' . $a->data['user']['nickname'],
+                '$competencie' => $competencies[0],
+		'$upload'      => [L10n::t('Upload New Videosstem::baseUrl().'), System::baseUrl().'/videos/'.$a->data['user']['nickname'].'/upload'],
 		'$competencies'=> $competencies,
 		'$delete_url'  => (($can_post)?System::baseUrl().'/videos/'.$a->data['user']['nickname']:False)
 	]);
@@ -135,3 +138,7 @@ function competencie_content(App $a) {
 	$o .= paginate($a);
 	return $o;
 }
+
+
+
+
