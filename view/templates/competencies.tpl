@@ -1,7 +1,11 @@
 <div class="">
+{{if $competencies}}
 {{foreach $competencies as $competencie}}
 	{{include file="competencie.tpl"}}
 {{/foreach}}
+{{else}}
+Nenhuma competencia adicionada
+{{/if}}
 </div>
 
 

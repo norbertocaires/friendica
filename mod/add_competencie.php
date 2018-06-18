@@ -82,18 +82,38 @@ function add_competencie_init(App $a) {
 }
 
 function add_competencie_post(App $a) {
-
 	if (! local_user()) {
 		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
         
-	info(L10n::t('Profile updated.') . EOL);
+        $r = q("INSERT INTO `competency` (`uid`, `name`, `statement`, `idnumber`, `autonomy`, `frequency`, `familiarity`, `scope`, `complexity`)
+        	values('%d', '%s', '%s', '%s', '%f', '%f', '%f', '%f', '%s')",
+                intval(local_user()),
+      		dbesc(trim($_POST['competencie_name'])),
+		dbesc(trim($_POST['competencie_statement'])),
+		dbesc(trim($_POST['competencie_idnumber'])),
+                $_POST['autonomy'] === 'true',
+		$_POST['frequency'] === 'true',
+		$_POST['familiarity'] === 'true',
+		$_POST['scope'] === 'true',
+                dbesc(trim($_POST['complexity']))
+                );
+        
+        if ($r) {
+            info(L10n::t('Competencia adicionada.') . EOL);
+            $redirect = System::baseUrl() . '/competencie/' . $a->data['user']['nickname'];
+            header("location:$redirect");
+            exit();
+        }else{
+            info(L10n::t("erro") . EOL);
+        }
+
 }
 
 
 function add_competencie_content(App $a) {
-
+    
 	if((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) {
 		notice(L10n::t('Public access denied.') . EOL);
 		return;
@@ -103,16 +123,26 @@ function add_competencie_content(App $a) {
 	require_once('include/conversation.php');
 
 	if(! x($a->data,'user')) {
-		notice(L10n::t('No competencie selected') . EOL );
+		notice(L10n::t('No user selected') . EOL );
 		return;
 	}
 
-        $competencies = '';
-
-		$competencies = [
-			'id'          => 0,
-			'title'       => '',
-			'description' => '',
+        $competencie = '';
+        
+        $competencie = [
+			'id'          => '',
+			
+                        'name'        => '',
+			'statement'   => '',
+                    
+                        'idnumber'    => '',
+                        'autonomy'    => false,
+                        'frequency'   => false,
+                        'familiarity' => false,
+                        'scope'       => false,
+                        'complexity'  => 'weak',
+                    
+                        'edit'        => 'update_competencie/' . $a->data['user']['nickname'],
 			'album' => [
 				'link'  => System::baseUrl() . '/videos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($rr['album']),
 				'name'  => $name_e,
@@ -126,19 +156,15 @@ function add_competencie_content(App $a) {
         
         $tpl = get_markup_template('competencie_fields.tpl');
 	$o .= replace_macros($tpl, [
-		'$title'       => L10n::t('Adicionar competencia'),
+		'$title'       => L10n::t('Adicionar competencia'),          
 		'$save'        => 'Salvar',
                 '$saveLink'    => System::baseUrl(). '/competencie/' . $a->data['user']['nickname'],
-                '$competencie' => $competencies[0],
-		'$upload'      => [L10n::t('Upload New Videosstem::baseUrl().'), System::baseUrl().'/videos/'.$a->data['user']['nickname'].'/upload'],
-		'$competencies'=> $competencies,
+                '$competencie' => $competencie,
+		'$action'      => 'add_competencie',
+                '$nick'        => $a->data['user']['nickname'],
 		'$delete_url'  => (($can_post)?System::baseUrl().'/videos/'.$a->data['user']['nickname']:False)
 	]);
         
 	$o .= paginate($a);
 	return $o;
 }
-
-
-
-

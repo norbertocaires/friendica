@@ -96,13 +96,27 @@ function competencie_content(App $a) {
 		notice(L10n::t('No competencie selected') . EOL );
 		return;
 	}
+        
+       	$r = q("SELECT `id`, `uid`, `name`, `statement`, `idnumber`, `autonomy`, `frequency`, `familiarity`, `scope`, `complexity` FROM `competency`  WHERE `uid` = %d",
+		intval($a->data['user']['uid'])
+	);
 
         $competencies = [];
-	for ($count = 1; $count < 5; $count++) {
-		$competencies[] = [
-			'id'          => $count,
-			'title'       => 'Title ' . $count,
-			'description' => 'Description ' . $count,
+       	if (DBM::is_result($r)) {
+            foreach ($r as $rr) {
+    		$competencies[] = [
+			'id'          => $rr['id'],
+			
+                        'name'        => $rr['name'],
+			'statement'   => $rr['statement'],
+                    
+                        'idnumber'    => $rr['idnumber'],
+                        'autonomy'    => $rr['autonomy'],
+                        'frequency'   => $rr['frequency'],
+                        'familiarity' => $rr['familiarity'],
+                        'scope'       => $rr['scope'],
+                        'complexity'  => $rr['complexity'],
+                    
                         'edit'        => 'update_competencie/' . $a->data['user']['nickname'],
 			'album' => [
 				'link'  => System::baseUrl() . '/videos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($rr['album']),
@@ -110,6 +124,7 @@ function competencie_content(App $a) {
 				'alt'   => L10n::t('View Album'),
 			],
 		];
+            }
 	}
         
 
