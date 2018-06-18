@@ -34,8 +34,10 @@ function update_competencie_init(App $a) {
 
 	$o = '';
 
-	if($a->argc > 1) {
+	if($a->argc > 2) {
 		$nick = $a->argv[1];
+                $competencieId = $a->argv[2];
+                
 		$user = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `blocked` = 0 LIMIT 1",
 			dbesc($nick)
 		);
@@ -45,6 +47,7 @@ function update_competencie_init(App $a) {
 
 		$a->data['user'] = $user[0];
 		$a->profile_uid = $user[0]['uid'];
+                $a->competencieId = $competencieId;
 
 		$profile = Profile::getByNickname($nick, $a->profile_uid);
 
@@ -88,7 +91,27 @@ function update_competencie_post(App $a) {
 		return;
 	}
         
-	info(L10n::t('Profile updated.') . EOL);
+        $r = q("UPDATE `competency` SET `name` = '%s', `statement` = '%s', `idnumber` = '%s', `autonomy` = '%f', `frequency` = '%f', `familiarity` = '%f', `scope` = '%f', `complexity` = '%s' WHERE `competency`.`id` = %d",
+      		dbesc(trim($_POST['competencie_name'])),
+		dbesc(trim($_POST['competencie_statement'])),
+		dbesc(trim($_POST['competencie_idnumber'])),
+                $_POST['autonomy'] === 'true',
+		$_POST['frequency'] === 'true',
+		$_POST['familiarity'] === 'true',
+		$_POST['scope'] === 'true',
+                dbesc(trim($_POST['complexity'])),
+                intval($a->competencieId)
+        );
+        
+
+        if ($r) {
+            info(L10n::t('Competencia atualizada.') . EOL);
+            $redirect = System::baseUrl() . '/competencie/' . $a->data['user']['nickname'];
+            header("location:$redirect");
+            exit();
+        }else{
+            info(L10n::t("erro") . EOL);
+        }
 }
 
 
@@ -107,20 +130,33 @@ function update_competencie_content(App $a) {
 		return;
 	}
 
-        $competencies = [];
-	for ($count = 1; $count < 5; $count++) {
-		$competencies[] = [
-			'id'          => $count,
-			'title'       => 'Title ' . $count,
-			'description' => 'Description ' . $count,
-			'album' => [
-				'link'  => System::baseUrl() . '/videos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($rr['album']),
-				'name'  => $name_e,
-				'alt'   => L10n::t('View Album'),
-			],
-		];
-	}
         
+        $r = q("SELECT `id`, `uid`, `name`, `statement`, `idnumber`, `autonomy`, `frequency`, `familiarity`, `scope`, `complexity` FROM `competency`  WHERE `id` = %d",
+			intval($a->competencieId)
+		);
+
+
+
+        $competencie = '';        
+       	if (DBM::is_result($r)) {
+            $competencie = [
+		'id'          => $r[0]['id'],
+	        
+                'name'        => $r[0]['name'],
+		'statement'   => $r[0]['statement'],
+                    
+                'idnumber'    => $r[0]['idnumber'],
+                'autonomy'    => $r[0]['autonomy'],
+                'frequency'   => $r[0]['frequency'],
+                'familiarity' => $r[0]['familiarity'],
+                'scope'       => $r[0]['scope'],
+                'complexity'  => $r[0]['complexity'],
+                    
+                'edit'        => 'update_competencie/' . $a->data['user']['nickname'] .'/'.$r[0]['id'],
+		
+            ];
+	}
+
 
 	$o = "";
 
@@ -128,11 +164,14 @@ function update_competencie_content(App $a) {
         $tpl = get_markup_template('competencie_fields.tpl');
 	$o .= replace_macros($tpl, [
 		'$title'       => L10n::t('Editar competencia'),
-		'$save'      => 'Salvar Competencia',
-                '$saveLink'        => System::baseUrl(). '/competencie/' . $a->data['user']['nickname'],
-                '$competencie' => $competencies[0],
+		'$save'        => 'Salvar Competencia',
+                '$saveLink'    => System::baseUrl(). '/competencie/' . $a->data['user']['nickname'],
+                '$competencie' => $competencie,
+            
+                '$action'      => 'update_competencie',
+                '$nick'        =>  $a->data['user']['nickname'] . '/' . $a->competencieId,
+            
 		'$upload'      => [L10n::t('Upload New Videosstem::baseUrl().'), System::baseUrl().'/videos/'.$a->data['user']['nickname'].'/upload'],
-		'$competencies'=> $competencies,
 		'$delete_url'  => (($can_post)?System::baseUrl().'/videos/'.$a->data['user']['nickname']:False)
 	]);
         

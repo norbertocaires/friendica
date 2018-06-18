@@ -81,6 +81,25 @@ function competencie_init(App $a) {
 	return;
 }
 
+function competencie_post(App $a) {
+	if (! local_user()) {
+		notice(L10n::t('Permission denied.') . EOL);
+		return;
+	}
+        
+        $r = q("DELETE FROM `competency` WHERE `competency`.`id` = %d",
+                $a->argv[2]
+                );
+    
+        if ($r) {
+            info(L10n::t('Competencia deletada.') . EOL);
+            $redirect = System::baseUrl() . '/competencie/' . $a->data['user']['nickname'];
+            header("location:$redirect");
+            exit();
+        }else{
+            info(L10n::t("erro") . EOL);
+        }
+}
 
 function competencie_content(App $a) {
 
@@ -117,12 +136,8 @@ function competencie_content(App $a) {
                         'scope'       => $rr['scope'],
                         'complexity'  => $rr['complexity'],
                     
-                        'edit'        => 'update_competencie/' . $a->data['user']['nickname'],
-			'album' => [
-				'link'  => System::baseUrl() . '/videos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($rr['album']),
-				'name'  => $name_e,
-				'alt'   => L10n::t('View Album'),
-			],
+                        'edit'        => 'update_competencie/' . $a->data['user']['nickname'] .'/'.$rr['id'],
+                        'del'         => 'competencie/'. $a->data['user']['nickname'] .'/'.$rr['id'] 
 		];
             }
 	}
@@ -139,12 +154,10 @@ function competencie_content(App $a) {
 		'$title'       => L10n::t('Competencias'),
 		'$edit'        => 'Editar competencia',
                 '$del'         => 'Deletar',
-                '$delLink'     => System::baseUrl().'/competencie/'. $a->data['user']['nickname'],
                 '$add'         => 'Adicionar competencia',
                 '$addLink'     => System::baseUrl().'/add_competencie/'. $a->data['user']['nickname'],
 		'$upload'      => [L10n::t('Upload New Videos'), System::baseUrl().'/videos/'.$a->data['user']['nickname'].'/upload'],
 		'$competencies'=> $competencies,
-		'$delete_url'  => (($can_post)?System::baseUrl().'/videos/'.$a->data['user']['nickname']:False)
 	]);
         
 	$o .= paginate($a);
