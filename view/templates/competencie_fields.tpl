@@ -23,9 +23,45 @@
 <br>
 <input type="text" size="10" name="competencie_idnumber" id="competencie-idnumber" value="{{$competencie.idnumber}}" /><div class="required">*</div>
 </div>
+<br>
+
+<h3>Nível de Performance</h3>
+<hr>
+<h4> Nível: </h4>
+
+<select>
+  <option value="0">Escolha um nível..</option>
+  <option value="Principiante">Principiante</option>
+  <option value="Intermediário">Intermediário</option>
+  <option value="Avançado">Avançado</option>
+  <option value="Especialista">Especialista</option>
+</select>
 
 <br>
-<div>
+<br>
+<h4> Valor: </h4>
+<select>
+  <option value="0">Escolha um valor..</option>
+  <option value="1">1</option>
+  <option value="2">2</option>
+  <option value="3">3</option>
+  <option value="4">4</option>
+  <option value="5">5</option>
+  <option value="6">6</option>
+  <option value="7">7</option>
+  <option value="8">8</option>
+  <option value="9">9</option>
+  <option value="10">10</option>
+</select>
+
+<br>
+<br>
+
+
+<h4> Critérios: </h4>
+<br>
+
+<div style="float:left">
   <label id="competencie-idnumber-label"> Autonomo </label>
 <div class="required">*</div>
   <div>
@@ -38,8 +74,7 @@
   </div>
 </div>
 
-<br>
-<div>
+<div style="float:left">
   <label id="competencie-idnumber-label"> Frequência </label>
 <div class="required">*</div>
   <div>
@@ -52,8 +87,7 @@
   </div>
 </div>
 
-<br>
-<div>
+<div style="float:left">
   <label id="competencie-idnumber-label"> Familiaridade </label>
 <div class="required">*</div>
   <div>
@@ -65,9 +99,10 @@
     <label for="without">Não Familiar</label>
   </div>
 </div>
+<div style="clear:both"></div>
 
 <br>
-<div>
+<div style="float:left">
   <label id="competencie-idnumber-label"> Escopo </label>
 <div class="required">*</div>
   <div>
@@ -80,8 +115,7 @@
   </div>
 </div>
 
-<br>
-<div>
+<div style="float:left">
   <label id="competencie-idnumber-label"> Complexidade </label>
 <div class="required">*</div>
   <div>
@@ -96,9 +130,8 @@
     <label for="without">Baixa</label>
   </div>
 </div>
+<div style="clear:both"></div>
 
-
-<br>
 <div class="competencie-submit-wrapper" >
     <input id="event-submit" type="submit" name="submit" value="Salvar" />
 </div>
