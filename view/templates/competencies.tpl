@@ -12,5 +12,6 @@ Nenhuma competencia adicionada
 <br>
 <div class="add-competencie" >
 <a class="btn" href="{{$addLink}}" title="{{$add}}">{{$add}}</a>
+{{$q}}
 </div>
 <div class="add-competencie"></div>
