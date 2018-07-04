@@ -103,6 +103,46 @@ function competencie_post(App $a) {
 
 function competencie_content(App $a) {
 
+	include_once("/opt/lampp/htdocs/arc2-starter-pack/arc/ARC2.php");
+	include_once('/opt/lampp/htdocs/arc2-starter-pack/config.php');
+	$store = ARC2::getStore($arc_config);
+	if (!$store->isSetUp()) {
+		$store->setUp(); /* create MySQL tables */
+	}
+	$q = '
+		SELECT DISTINCT ?subject ?property ?object WHERE { 
+		?subject ?property ?object .
+		}
+	';
+	$t = '';
+	$rows = $store->query($q, 'rows');
+	$t .= $store->getErrors() . EOL;
+
+$query = '
+    PREFIX dc: <http://purl.org/dc/elements/1.1/>
+    INSERT DATA
+    { 
+        <http://example/book007> dc:title "A new book" ;
+                         dc:creator "A.N.Other" .
+    }
+';
+
+	$t .= $store->query($query . EOL);
+	$t .= $store->getErrors() . EOL;
+
+	if ($rows) {
+		$t .= '<table border=1>
+		<th>Subject</th><th>Property</th><th>Object</th>'."\n";
+		foreach ($rows as $row) {
+			$t .= '<tr><td>'.$row['subject'] .
+				'</td><td>'.$row['property'] .
+				'</td><td>'.$row['object'] . '</td></tr>'."\n";
+		}
+		$t .='</table>'."\n";
+	} else{
+		$t .= '<em>No data returned</em>';
+	}
+
 	if((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) {
 		notice(L10n::t('Public access denied.') . EOL);
 		return;
@@ -151,6 +191,7 @@ function competencie_content(App $a) {
         
         $tpl = get_markup_template('competencies.tpl');
 	$o .= replace_macros($tpl, [
+		'q' => $t,
 		'$title'       => L10n::t('Competencias'),
 		'$edit'        => 'Editar competencia',
                 '$del'         => 'Deletar',
