@@ -86,6 +86,35 @@ function competencie_post(App $a) {
 		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
+
+        $r = q("SELECT `id`, `uid`, `competencyId` FROM `competency`  WHERE `id` = %d",
+			intval($a->argv[2])
+		);
+
+	include_once("/opt/lampp/htdocs/arc2-starter-pack/arc/ARC2.php");
+	include_once('/opt/lampp/htdocs/arc2-starter-pack/config.php');
+	$store = ARC2::getStore($arc_config); 
+	$q = '
+		SELECT DISTINCT ?subject ?property ?object WHERE { 
+		?subject ?property ?object .
+		}
+	';
+	$t = '';
+	$rows = $store->query($q, 'rows');
+
+	$name = '';
+	$statement = '';
+	if ($rows) {
+		foreach ($rows as $row) {
+			if(strpos($row['subject'], "#Competency_" . $r[0]['competencyId'])){
+				$query = 'DELETE { <' . $row['subject'] . '> <' . $row['property'] . '> "' . $row['object'] . '" . }';
+				$store->query($query);
+			}
+		}
+	} else{
+		return;
+	}
+
         
         $r = q("DELETE FROM `competency` WHERE `competency`.`id` = %d",
                 $a->argv[2]
@@ -102,6 +131,10 @@ function competencie_post(App $a) {
 }
 
 function competencie_content(App $a) {
+	if((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) {
+		notice(L10n::t('Public access denied.') . EOL);
+		return;
+	}
 
 	include_once("/opt/lampp/htdocs/arc2-starter-pack/arc/ARC2.php");
 	include_once('/opt/lampp/htdocs/arc2-starter-pack/config.php');
@@ -116,35 +149,15 @@ function competencie_content(App $a) {
 	';
 	$t = '';
 	$rows = $store->query($q, 'rows');
-	$t .= $store->getErrors() . EOL;
 
-$query = '
-    PREFIX dc: <http://purl.org/dc/elements/1.1/>
-    INSERT DATA
-    { 
-        <http://example/book007> dc:title "A new book" ;
-                         dc:creator "A.N.Other" .
-    }
-';
-
-	$t .= $store->query($query . EOL);
-	$t .= $store->getErrors() . EOL;
-
+	$competenciesOWL = [];
 	if ($rows) {
-		$t .= '<table border=1>
-		<th>Subject</th><th>Property</th><th>Object</th>'."\n";
 		foreach ($rows as $row) {
-			$t .= '<tr><td>'.$row['subject'] .
-				'</td><td>'.$row['property'] .
-				'</td><td>'.$row['object'] . '</td></tr>'."\n";
+			if(strpos($row['subject'], "#Competency_")){
+				$competenciesOWL[] = $row;
+			}
 		}
-		$t .='</table>'."\n";
 	} else{
-		$t .= '<em>No data returned</em>';
-	}
-
-	if((Config::get('system','block_public')) && (! local_user()) && (! remote_user())) {
-		notice(L10n::t('Public access denied.') . EOL);
 		return;
 	}
 
@@ -156,26 +169,34 @@ $query = '
 		return;
 	}
         
-       	$r = q("SELECT `id`, `uid`, `name`, `statement`, `idnumber`, `autonomy`, `frequency`, `familiarity`, `scope`, `complexity` FROM `competency`  WHERE `uid` = %d",
+       	$r = q("SELECT `id`, `uid`, `competencyId` FROM `competency`  WHERE `uid` = %d",
 		intval($a->data['user']['uid'])
 	);
 
         $competencies = [];
        	if (DBM::is_result($r)) {
             foreach ($r as $rr) {
+		$name = '';
+		$statement = '';
+		foreach($competenciesOWL as $owl){
+			if(strpos($owl['subject'], "#Competency_".$rr['competencyId'])){
+				if(strpos($owl['property'], "#name")){
+					$name = $owl['object'];
+				}
+			}
+			if(strpos($owl['subject'], "#Competency_".$rr['competencyId'])){
+				if(strpos($owl['property'], "#statement")){
+					$statement = $owl['object'];
+				}
+			}
+		}
+
     		$competencies[] = [
 			'id'          => $rr['id'],
 			
-                        'name'        => $rr['name'],
-			'statement'   => $rr['statement'],
-                    
-                        'idnumber'    => $rr['idnumber'],
-                        'autonomy'    => $rr['autonomy'],
-                        'frequency'   => $rr['frequency'],
-                        'familiarity' => $rr['familiarity'],
-                        'scope'       => $rr['scope'],
-                        'complexity'  => $rr['complexity'],
-                    
+                        'name'        => $name,
+			'statement'   => $statement,
+       
                         'edit'        => 'update_competencie/' . $a->data['user']['nickname'] .'/'.$rr['id'],
                         'del'         => 'competencie/'. $a->data['user']['nickname'] .'/'.$rr['id'] 
 		];

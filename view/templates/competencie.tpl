@@ -1,4 +1,6 @@
+<label id="competencie-name-label" for="competencie-name" > Título: </label>
 <div>{{$competencie.name}}</div>
+<label id="competencie-statement-label" for="competencie-statement"> Descrição: </label>
 <div>{{$competencie.statement}}</div>
 <div class="profile-edit-side-div">
     <a class="icon edit" title="{{$edit}}" href="{{$competencie.edit}}" >

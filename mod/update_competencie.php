@@ -90,18 +90,48 @@ function update_competencie_post(App $a) {
 		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
-        
-        $r = q("UPDATE `competency` SET `name` = '%s', `statement` = '%s', `idnumber` = '%s', `autonomy` = '%f', `frequency` = '%f', `familiarity` = '%f', `scope` = '%f', `complexity` = '%s' WHERE `competency`.`id` = %d",
-      		dbesc(trim($_POST['competencie_name'])),
-		dbesc(trim($_POST['competencie_statement'])),
-		dbesc(trim($_POST['competencie_idnumber'])),
-                $_POST['autonomy'] === 'true',
-		$_POST['frequency'] === 'true',
-		$_POST['familiarity'] === 'true',
-		$_POST['scope'] === 'true',
-                dbesc(trim($_POST['complexity'])),
-                intval($a->competencieId)
-        );
+
+        $r = q("SELECT `id`, `uid`, `competencyId` FROM `competency`  WHERE `id` = %d",
+			intval($a->competencieId)
+		);
+
+	include_once("/opt/lampp/htdocs/arc2-starter-pack/arc/ARC2.php");
+	include_once('/opt/lampp/htdocs/arc2-starter-pack/config.php');
+	$store = ARC2::getStore($arc_config); 
+	$q = '
+		SELECT DISTINCT ?subject ?property ?object WHERE { 
+		?subject ?property ?object .
+		}
+	';
+	$t = '';
+	$rows = $store->query($q, 'rows');
+
+	$name = '';
+	$statement = '';
+	if ($rows) {
+		foreach ($rows as $row) {
+			if(strpos($row['subject'], "#Competency_" . $r[0]['competencyId'])){
+				$query = 'DELETE { <' . $row['subject'] . '> <' . $row['property'] . '> "' . $row['object'] . '" . }';
+				$store->query($query);
+			}
+		}
+	} else{
+		return;
+	}
+
+	$queryName = 'INSERT INTO <file:///home/norberto/teste.owl> CONSTRUCT {
+			<http://www.professional-learning.eu/ontologies/competence.owl#Competency_' . $r[0]['competencyId'] . '> 
+			<http://www.w3.org/2000/01/rdf-schema#name> "' . 
+			trim($_POST['competencie_name']) . 
+			'" . }';
+	$store->query($queryName);
+
+	$queryStatement = 'INSERT INTO <file:///home/norberto/teste.owl> CONSTRUCT {
+				<http://www.professional-learning.eu/ontologies/competence.owl#Competency_' . $r[0]['competencyId'] . '> 
+				<http://www.w3.org/2000/01/rdf-schema#statement> "' . 
+				trim($_POST['competencie_statement']) . 
+				'" . }';
+	$store->query($queryStatement);
         
 
         if ($r) {
@@ -131,26 +161,45 @@ function update_competencie_content(App $a) {
 	}
 
         
-        $r = q("SELECT `id`, `uid`, `name`, `statement`, `idnumber`, `autonomy`, `frequency`, `familiarity`, `scope`, `complexity` FROM `competency`  WHERE `id` = %d",
+        $r = q("SELECT `id`, `uid`, `competencyId` FROM `competency`  WHERE `id` = %d",
 			intval($a->competencieId)
 		);
 
+	include_once("/opt/lampp/htdocs/arc2-starter-pack/arc/ARC2.php");
+	include_once('/opt/lampp/htdocs/arc2-starter-pack/config.php');
+	$store = ARC2::getStore($arc_config); 
+	$q = '
+		SELECT DISTINCT ?subject ?property ?object WHERE { 
+		?subject ?property ?object .
+		}
+	';
+	$t = '';
+	$rows = $store->query($q, 'rows');
 
+	$name = '';
+	$statement = '';
+	if ($rows) {
+		foreach ($rows as $row) {
+			if(strpos($row['subject'], "#Competency_" . $r[0]['competencyId'])){
+				if(strpos($row['property'], "#name")){
+					$name = $row['object'];
+				}
+				if(strpos($row['property'], "#statement")){
+					$statement = $row['object'];
+				}
+			}
+		}
+	} else{
+		return;
+	}
 
         $competencie = '';        
        	if (DBM::is_result($r)) {
             $competencie = [
 		'id'          => $r[0]['id'],
 	        
-                'name'        => $r[0]['name'],
-		'statement'   => $r[0]['statement'],
-                    
-                'idnumber'    => $r[0]['idnumber'],
-                'autonomy'    => $r[0]['autonomy'],
-                'frequency'   => $r[0]['frequency'],
-                'familiarity' => $r[0]['familiarity'],
-                'scope'       => $r[0]['scope'],
-                'complexity'  => $r[0]['complexity'],
+                'name'        => $name,
+		'statement'   => $statement,
                     
                 'edit'        => 'update_competencie/' . $a->data['user']['nickname'] .'/'.$r[0]['id'],
 		

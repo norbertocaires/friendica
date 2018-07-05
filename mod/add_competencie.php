@@ -86,18 +86,32 @@ function add_competencie_post(App $a) {
 		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
+
+	$result = q("SELECT MAX(Id) as max_id FROM `competency`");
+	$competencyId = $result[0]['max_id'] + 1;
+
+	include_once("/opt/lampp/htdocs/arc2-starter-pack/arc/ARC2.php");
+	include_once('/opt/lampp/htdocs/arc2-starter-pack/config.php');
+	$store = ARC2::getStore($arc_config);
+
+	$queryName = 'INSERT INTO <file:///home/norberto/teste.owl> CONSTRUCT {
+			<http://www.professional-learning.eu/ontologies/competence.owl#Competency_' . $competencyId . '> 
+			<http://www.w3.org/2000/01/rdf-schema#name> "' . 
+			trim($_POST['competencie_name']) . 
+			'" . }';
+	$store->query($queryName);
+
+	$queryStatement = 'INSERT INTO <file:///home/norberto/teste.owl> CONSTRUCT {
+				<http://www.professional-learning.eu/ontologies/competence.owl#Competency_' . $competencyId . '> 
+				<http://www.w3.org/2000/01/rdf-schema#statement> "' . 
+				trim($_POST['competencie_statement']) . 
+				'" . }';
+	$store->query($queryStatement);
         
-        $r = q("INSERT INTO `competency` (`uid`, `name`, `statement`, `idnumber`, `autonomy`, `frequency`, `familiarity`, `scope`, `complexity`)
-        	values('%d', '%s', '%s', '%s', '%f', '%f', '%f', '%f', '%s')",
+        $r = q("INSERT INTO `competency` (`uid`, `competencyId`)
+        	values('%d', '%d')",
                 intval(local_user()),
-      		dbesc(trim($_POST['competencie_name'])),
-		dbesc(trim($_POST['competencie_statement'])),
-		dbesc(trim($_POST['competencie_idnumber'])),
-                $_POST['autonomy'] === 'true',
-		$_POST['frequency'] === 'true',
-		$_POST['familiarity'] === 'true',
-		$_POST['scope'] === 'true',
-                dbesc(trim($_POST['complexity']))
+		$competencyId
                 );
         
         if ($r) {
