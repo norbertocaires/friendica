@@ -15,6 +15,7 @@ use Friendica\Model\Item;
 require_once 'include/security.php';
 require_once 'include/conversation.php';
 require_once 'mod/dirfind.php';
+require_once 'mod/competenciefind.php';
 
 function search_saved_searches() {
 
@@ -179,6 +180,9 @@ function search_content(App $a) {
 			case 'contacts':
 				return dirfind_content($a, "@");
 				break;
+                        case 'competency':
+                                return competenciefind_content($a, $search);
+                                break;
 			case 'forums':
 				return dirfind_content($a, "!");
 				break;

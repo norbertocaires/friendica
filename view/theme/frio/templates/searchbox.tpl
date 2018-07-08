@@ -29,7 +29,8 @@ Some parts of this template will be moved by js to other places (see theme.js) -
 									<option value="fulltext">{{$searchoption.0}}</option>
 									<option value="tags">{{$searchoption.1}}</option>
 									<option value="contacts">{{$searchoption.2}}</option>
-									{{if $searchoption.3}}<option value="forums">{{$searchoption.3}}</option>{{/if}}
+                                                                        <option value="competency">{{$searchoption.3}}</option>
+									{{if $searchoption.4}}<option value="forums">{{$searchoption.4}}</option>{{/if}}
 								</select>
 
 							</div>

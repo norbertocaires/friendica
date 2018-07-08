@@ -142,10 +142,10 @@ class Nav
 			$nav['search'] = ['search', L10n::t('Search'), '', L10n::t('Search site content')];
 
 			$nav['searchoption'] = [
-				L10n::t('Full Text'),
-				L10n::t('Tags'),
-				L10n::t('Contacts')
-			];
+				L10n::t("Full Text"),
+				L10n::t("Tags"),
+				L10n::t("Contacts"),
+                                L10n::t("Competencies")];
 
 			if (Config::get('system', 'poco_local_search')) {
 				$nav['searchoption'][] = L10n::t('Forums');
