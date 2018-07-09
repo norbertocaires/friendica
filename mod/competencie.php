@@ -135,7 +135,7 @@ function competencie_content(App $a) {
 		notice(L10n::t('Public access denied.') . EOL);
 		return;
 	}
-
+        
 	include_once("/opt/lampp/htdocs/arc2-starter-pack/arc/ARC2.php");
 	include_once('/opt/lampp/htdocs/arc2-starter-pack/config.php');
 	$store = ARC2::getStore($arc_config);
@@ -197,6 +197,7 @@ function competencie_content(App $a) {
                         'name'        => $name,
 			'statement'   => $statement,
        
+                        '$show'        => local_user() != $a->data['user']['uid'] ? 'none': '' ,
                         'edit'        => 'update_competencie/' . $a->data['user']['nickname'] .'/'.$rr['id'],
                         'del'         => 'competencie/'. $a->data['user']['nickname'] .'/'.$rr['id'] 
 		];
@@ -214,6 +215,7 @@ function competencie_content(App $a) {
 	$o .= replace_macros($tpl, [
 		'q' => $t,
 		'$title'       => L10n::t('Competencias'),
+                '$show'        => local_user() != $a->data['user']['uid'] ? 'none': '' ,
 		'$edit'        => 'Editar competencia',
                 '$del'         => 'Deletar',
                 '$add'         => 'Adicionar competencia',

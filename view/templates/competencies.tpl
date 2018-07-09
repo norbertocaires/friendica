@@ -10,7 +10,7 @@ Nenhuma competencia adicionada
 
 
 <br>
-<div class="add-competencie" >
+<div class="add-competencie" style="display: {{$show}};" >
 <a class="btn" href="{{$addLink}}" title="{{$add}}">{{$add}}</a>
 {{$q}}
 </div>
